@@ -1,4 +1,4 @@
-# get_scifor
+# SciFortran Checkout
 
 A composite GitHub Action that installs the dependencies and a published
 [SciFortran](https://github.com/SciFortran/SciFortran) binary release on
