@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: scifor
-        uses: SciFortran/get_scifor@main
+        uses: SciFortran/checkout@main
       - run: |
           echo "Using $SCIFOR_RELEASE"
           make
