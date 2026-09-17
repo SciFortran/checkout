@@ -30,7 +30,9 @@ Later steps in the same job receive `PKG_CONFIG_PATH`, `SFROOT`,
 release-package equivalent of loading the SciFortran environment module.
 The action also exposes `release` and `root` outputs. These environment
 variables do not cross job boundaries; call the action in each job that
-needs SciFortran.
+needs SciFortran. Before returning, the action verifies the library,
+module file and `pkg-config` metadata, then prints the selected release and
+compile/link flags. A failed check stops the job before the project build.
 The package contains `libscifor.a`, Fortran module files and `scifor.pc`.
 Fortran `.mod` files require a compatible compiler and MPI setup.
 

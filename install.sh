@@ -29,23 +29,28 @@ if [[ "$release" == latest ]]; then
     --json tagName,publishedAt \
     --jq '[.[] | select(.tagName | startswith("scifor-"))] | sort_by(.publishedAt) | last | .tagName // empty')
 fi
-if [[ "$release" != scifor-* ]]; then
-  echo "No SciFortran release found; expected a scifor-* tag, got: $release" >&2
+if [[ ! "$release" =~ ^scifor-[A-Za-z0-9._-]+$ ]]; then
+  echo "No valid SciFortran release found; expected a scifor-* tag, got: $release" >&2
   exit 1
 fi
 
 asset="${release}-${platform}.tar.gz"
-download_dir="$RUNNER_TEMP/scifor"
-mkdir -p "$download_dir"
+download_dir=$(mktemp -d "$RUNNER_TEMP/scifor.XXXXXX")
 gh release download "$release" -R "$repo" --pattern "$asset" --dir "$download_dir" --clobber
 tar -C "$download_dir" -xzf "$download_dir/$asset"
 root="$download_dir/${asset%.tar.gz}"
-test -s "$root/lib/libscifor.a"
-test -s "$root/lib/pkgconfig/scifor.pc"
-test -s "$root/include/scifor.mod"
+for file in "$root/lib/libscifor.a" "$root/lib/pkgconfig/scifor.pc" "$root/include/scifor.mod"; do
+  if [[ ! -s "$file" ]]; then
+    echo "SciFortran package is incomplete: missing $file" >&2
+    exit 1
+  fi
+done
 
 export PKG_CONFIG_PATH="$root/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
-pkg-config --exists scifor
+if ! pkg-config --exists scifor; then
+  echo "SciFortran package is not visible to pkg-config" >&2
+  exit 1
+fi
 cflags=$(pkg-config --cflags scifor)
 libs=$(pkg-config --libs scifor)
 
@@ -66,4 +71,7 @@ libs=$(pkg-config --libs scifor)
   echo "root=$root"
 } >> "$GITHUB_OUTPUT"
 
-echo "Installed $release from $asset at $root"
+echo "SciFortran environment ready: $release"
+echo "  Package: $root"
+echo "  Compile flags: $cflags"
+echo "  Link flags: $libs"
