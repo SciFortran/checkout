@@ -15,9 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - id: scifor
         uses: SciFortran/checkout@main
-      - run: |
-          echo "Using $SCIFOR_RELEASE"
-          make
+      # Add this project's own configure/build steps here.
 ```
 
 The action chooses the newest published `scifor-*` prerelease by default.
@@ -26,8 +24,13 @@ The `release` input chooses the binary package; the `@main` reference chooses
 the version of this action. For a reproducible build, pin this action to a
 commit SHA and provide an explicit `release` tag.
 
-Later steps receive `PKG_CONFIG_PATH`, `GLOB_INC`, `GLOB_LIB`, `SCIFOR_ROOT`
-and `SCIFOR_RELEASE`. The action also exposes `release` and `root` outputs.
+Later steps in the same job receive `PKG_CONFIG_PATH`, `SFROOT`,
+`SCIFOR_ROOT`, `SCIFOR_RELEASE`, `LIBRARY_PATH`, `LD_LIBRARY_PATH`,
+`INCLUDE_PATH`, `FC=mpif90`, `GLOB_INC` and `GLOB_LIB`. This is the
+release-package equivalent of loading the SciFortran environment module.
+The action also exposes `release` and `root` outputs. These environment
+variables do not cross job boundaries; call the action in each job that
+needs SciFortran.
 The package contains `libscifor.a`, Fortran module files and `scifor.pc`.
 Fortran `.mod` files require a compatible compiler and MPI setup.
 

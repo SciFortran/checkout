@@ -51,8 +51,13 @@ libs=$(pkg-config --libs scifor)
 
 {
   echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH"
+  echo "SFROOT=$root"
   echo "SCIFOR_ROOT=$root"
   echo "SCIFOR_RELEASE=$release"
+  echo "LIBRARY_PATH=$root/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
+  echo "LD_LIBRARY_PATH=$root/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+  echo "INCLUDE_PATH=$root/include${INCLUDE_PATH:+:$INCLUDE_PATH}"
+  echo "FC=mpif90"
   echo "GLOB_INC=$cflags"
   echo "GLOB_LIB=$libs"
 } >> "$GITHUB_ENV"
